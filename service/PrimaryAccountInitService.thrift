@@ -1,62 +1,66 @@
-enum EncryptionKeyVersion {
-    UNKNOWN = 0;
-    V1 = 1
-}
-
 enum ErrorCode {
-    INTERNAL_ERROR = 0;
-    ILLEGAL_ARGUMENT = 1;
-    VERIFICATION_FAILED = 2;
-    NOT_FOUND = 3;
-    RETRY_LATER = 4;
-    HUMAN_VERIFICATION_REQUIRED = 5;
-    INVALID_CONTEXT = 100;
-    APP_UPGRADE_REQUIRED = 101;
+    INTERNAL_ERROR = 0,
+    ILLEGAL_ARGUMENT = 1,
+    VERIFICATION_FAILED = 2,
+    NOT_FOUND = 3,
+    RETRY_LATER = 4,
+    HUMAN_VERIFICATION_REQUIRED = 5,
+    INVALID_CONTEXT = 100,
+    APP_UPGRADE_REQUIRED = 101
 }
 
-enum PhoneVerifMethod {
-    UNKNOWN = 0;
-    UNAVAILABLE = 1;
-    SMS = 2;
-    TTS = 3;
+exception AuthException {
+    1: ErrorCode code;
+    2: string alertMessage;
+    11: WebAuthDetails webAuthDetails;
 }
 
-enum AccountIdentifierType {
-    UNKNOWN = 0;
-    PHONE_NUMBER = 1;
-    EMAIL = 2;
-}
-
-enum SecondAuthMethod {
-    UNKNOWN = 0;
-    SKIP = 1;
-    WEB_BASED = 2;
+struct OpenSessionRequest {
+    1: map<string, string> metaData;
 }
 
 enum AccountVerifMethod {
-    UNKNOWN = 0;
-    SKIP = 1;
-    PASSWORD = 2;
-    WEB_BASED = 3;
+    UNKNOWN = 0,
+    SKIP = 1,
+    PASSWORD = 2,
+    WEB_BASED = 3
 }
 
-struct SetPasswordResponse {
-
+struct GetAcctVerifMethodResponse {
+    1: AccountVerifMethod availableMethod;
+    2: bool sameAccountFromAuthFactor;
 }
 
-struct EncryptedPassword {
-    1: EncryptionKeyVersion encryptionKeyVersion;
-    2: string cipherText;
+enum AccountIdentifierType {
+    UNKNOWN = 0,
+    PHONE_NUMBER = 1,
+    EMAIL = 2
+}
+
+struct AccountIdentifier {
+    1: AccountIdentifierType type;
+    2: string identifier;
+    11: string countryCode;
+}
+
+struct RegisterPrimaryResponse {
+    1: string authToken;
+}
+
+struct MigratePrimaryResponse {
+    1: string authToken;
+}
+
+enum PhoneVerifMethod {
+    UNKNOWN = 0,
+    UNAVAILABLE = 1,
+    SMS = 2,
+    TTS = 3
 }
 
 struct GetPhoneVerifMethodResponse {
     1: list<PhoneVerifMethod> availableMethods;
     3: string prettifiedPhoneNumber;
-}
-
-struct WebAuthDetails {
-    1: string baseUrl;
-    2: string token;
 }
 
 struct Device {
@@ -67,14 +71,6 @@ struct Device {
 struct UserPhoneNumber {
     1: string phoneNumber;
     2: string countryCode;
-}
-
-struct SendPinCodeForPhoneResponse {
-    1: list<PhoneVerifMethod> availableMethods;
-}
-
-struct ValidateProfileResponse {
-
 }
 
 struct UserProfile {
@@ -88,29 +84,38 @@ struct VerifyPhoneResponse {
     11: UserProfile userProfile;
 }
 
-struct MigratePrimaryResponse {
-    1: string authToken;
-}
-
-struct OpenSessionRequest {
-    1: map<string, string> metaData;
-}
-
 struct VerifyAccountUsingPwdResponse {
     2: UserProfile userProfile;
 }
 
-struct AccountIdentifier {
-    1: AccountIdentifierType type;
-    2: string identifier;
-    11: string countryCode;
+enum EncryptionKeyVersion {
+    UNKNOWN = 0,
+    V1 = 1
 }
 
-struct GetSecondAuthMethodResponse {
-    1: SecondAuthMethod secondAuthMethod;
+struct EncryptedPassword {
+    1: EncryptionKeyVersion encryptionKeyVersion;
+    2: string cipherText;
+}
+
+struct ValidateProfileResponse {
+
+}
+
+struct GetUserProfileResponse {
+    1: UserProfile userProfile;
+}
+
+struct WebAuthDetails {
+    1: string baseUrl;
+    2: string token;
 }
 
 struct IssueWebAuthDetailsForAcctVerifResponse {
+    1: WebAuthDetails webAuthDetails;
+}
+
+struct IssueWebAuthDetailsForSecondAuthResponse {
     1: WebAuthDetails webAuthDetails;
 }
 
@@ -125,51 +130,51 @@ struct ExchangeEncryptionKeyRequest {
     3: string nonce;
 }
 
-struct RegisterPrimaryResponse {
-    1: string authToken;
+struct SetPasswordResponse {
+
 }
 
-struct IssueWebAuthDetailsForSecondAuthResponse {
-    1: WebAuthDetails webAuthDetails;
+struct SendPinCodeForPhoneResponse {
+    1: list<PhoneVerifMethod> availableMethods;
 }
 
-struct GetUserProfileResponse {
-    1: UserProfile userProfile;
+enum SecondAuthMethod {
+    UNKNOWN = 0,
+    SKIP = 1,
+    WEB_BASED = 2
 }
 
-struct GetAcctVerifMethodResponse {
-    1: AccountVerifMethod availableMethod;
-    2: bool sameAccountFromAuthFactor;
-}
-
-exception AuthException {
-    1: ErrorCode code;
-    2: string alertMessage;
-    11: WebAuthDetails webAuthDetails;
+struct GetSecondAuthMethodResponse {
+    1: SecondAuthMethod secondAuthMethod;
 }
 
 service PrimaryAccountInitService {
-    SetPasswordResponse setPassword(
+    // SECTION PrimaryAccountInitService
+
+    string openSession(
+        1: OpenSessionRequest request,
+    ) throws(1: AuthException e);
+
+    GetAcctVerifMethodResponse getAcctVerifMethod(
         1: string authSessionId,
-        2: EncryptedPassword encryptedPassword,
+        2: AccountIdentifier accountIdentifier,
+    ) throws(1: AuthException e);
+
+
+    // SECTION RegisterViewModel
+
+    RegisterPrimaryResponse registerPrimaryUsingPhone(
+        2: string authSessionId,
+    ) throws(1: AuthException e);
+
+    MigratePrimaryResponse migratePrimaryUsingPhone(
+        1: string authSessionId,
     ) throws(1: AuthException e);
 
     GetPhoneVerifMethodResponse getPhoneVerifMethod(
         1: string authSessionId,
         2: Device device,
         3: UserPhoneNumber userPhoneNumber,
-    ) throws(1: AuthException e);
-
-    SendPinCodeForPhoneResponse sendPinCodeForPhone(
-        1: string authSessionId,
-        2: Device device,
-        3: UserPhoneNumber userPhoneNumber,
-        4: PhoneVerifMethod verifMethod,
-    ) throws(1: AuthException e);
-
-    ValidateProfileResponse validateProfile(
-        1: string authSessionId,
-        2: string displayName,
     ) throws(1: AuthException e);
 
     VerifyPhoneResponse verifyPhone(
@@ -179,40 +184,15 @@ service PrimaryAccountInitService {
         4: string pinCode,
     ) throws(1: AuthException e);
 
-    MigratePrimaryResponse migratePrimaryUsingPhone(
-        1: string authSessionId,
-    ) throws(1: AuthException e);
-
-    string openSession(
-        1: OpenSessionRequest request,
-    ) throws(1: AuthException e);
-
     VerifyAccountUsingPwdResponse verifyAccountUsingPwd(
         1: string authSessionId,
         2: AccountIdentifier accountIdentifier,
         3: EncryptedPassword encryptedPassword,
     ) throws(1: AuthException e);
 
-    GetSecondAuthMethodResponse getSecondAuthMethod(
+    ValidateProfileResponse validateProfile(
         1: string authSessionId,
-    ) throws(1: AuthException e);
-
-    IssueWebAuthDetailsForAcctVerifResponse issueWebAuthDetailsForAcctVerif(
-        1: string authSessionId,
-        2: AccountIdentifier accountIdentifier,
-    ) throws(1: AuthException e);
-
-    ExchangeEncryptionKeyResponse exchangeEncryptionKey(
-        1: string authSessionId,
-        2: ExchangeEncryptionKeyRequest request,
-    ) throws(1: AuthException e);
-
-    RegisterPrimaryResponse registerPrimaryUsingPhone(
-        2: string authSessionId,
-    ) throws(1: AuthException e);
-
-    IssueWebAuthDetailsForSecondAuthResponse issueWebAuthDetailsForSecondAuth(
-        1: string authSessionId,
+        2: string displayName,
     ) throws(1: AuthException e);
 
     GetUserProfileResponse getUserProfile(
@@ -220,8 +200,36 @@ service PrimaryAccountInitService {
         2: AccountIdentifier accountIdentifier,
     ) throws(1: AuthException e);
 
-    GetAcctVerifMethodResponse getAcctVerifMethod(
+    IssueWebAuthDetailsForAcctVerifResponse issueWebAuthDetailsForAcctVerif(
         1: string authSessionId,
         2: AccountIdentifier accountIdentifier,
+    ) throws(1: AuthException e);
+
+    IssueWebAuthDetailsForSecondAuthResponse issueWebAuthDetailsForSecondAuth(
+        1: string authSessionId,
+    ) throws(1: AuthException e);
+
+
+    // SECTION PrimaryLoginSession
+
+    ExchangeEncryptionKeyResponse exchangeEncryptionKey(
+        1: string authSessionId,
+        2: ExchangeEncryptionKeyRequest request,
+    ) throws(1: AuthException e);
+
+    SetPasswordResponse setPassword(
+        1: string authSessionId,
+        2: EncryptedPassword encryptedPassword,
+    ) throws(1: AuthException e);
+
+    SendPinCodeForPhoneResponse sendPinCodeForPhone(
+        1: string authSessionId,
+        2: Device device,
+        3: UserPhoneNumber userPhoneNumber,
+        4: PhoneVerifMethod verifMethod,
+    ) throws(1: AuthException e);
+
+    GetSecondAuthMethodResponse getSecondAuthMethod(
+        1: string authSessionId,
     ) throws(1: AuthException e);
 }
