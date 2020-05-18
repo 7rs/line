@@ -7,10 +7,8 @@ from loguru import logger
 
 
 def setup_logger():
-    log_format = (
-        "<blue>{time:%s}:{process}</blue> <cyan>{name}:{line}</cyan> <level>{level: <8} | {message}</level>"
-        % ("YYYY-MM-DD-HH:mm:ss.SSS")
-    )
+    log_format = ("<blue>{time:%s}:{process}</blue> <cyan>{name}:{line}</cyan> <level>{level: <8} | {message}</level>" %
+                  ("YYYY-MM-DD-HH:mm:ss.SSS"))
 
     logger.remove()
     logger.add(sys.stdout, level="INFO", colorize=True, format=log_format)
@@ -51,7 +49,7 @@ def edit_ttypes(name: str, file: str):
         line = lines[i]
 
         if "import " in line and ".ttypes" in line:
-            imported_service = line[len("import ") : line.find(".ttypes")]
+            imported_service = line[len("import "):line.find(".ttypes")]
             lines[i] = line.replace(line, f"from {name} import {imported_service}")
 
     with open(file, "w") as writer:

@@ -31,10 +31,8 @@ from line_service.SecondaryQrCodeLoginPermitNoticeService.ttypes import (
 
 
 def setup_logger():
-    log_format = (
-        "<blue>{time:%s}:{process}</blue> <cyan>{name}:{line}</cyan> <level>{level: <8} | {message}</level>"
-        % ("YYYY-MM-DD-HH:mm:ss.SSS")
-    )
+    log_format = ("<blue>{time:%s}:{process}</blue> <cyan>{name}:{line}</cyan> <level>{level: <8} | {message}</level>" %
+                  ("YYYY-MM-DD-HH:mm:ss.SSS"))
 
     logger.remove()
     logger.add(sys.stdout, level="INFO", colorize=True, format=log_format)
@@ -49,13 +47,11 @@ sqlpns = "/acct/lp/lgn/sq/v1"
 def create_sqls_client() -> SecondaryQrCodeLoginService.Client:
     # SecondaryQrCodeLoginService -> sqls
     sqls_http_client = THttpClient(host + sqls)
-    sqls_http_client.setCustomHeaders(
-        {
-            "X-Line-Application": "ANDROIDLITE\t2.13.2\tAndroid OS\t10.0;SECONDARY",
-            "User-Agent": "LLA/2.13.2 Nexus 5X 10",
-            "x-lal": "ja_jp",
-        }
-    )
+    sqls_http_client.setCustomHeaders({
+        "X-Line-Application": "ANDROIDLITE\t2.13.2\tAndroid OS\t10.0;SECONDARY",
+        "User-Agent": "LLA/2.13.2 Nexus 5X 10",
+        "x-lal": "ja_jp",
+    })
     sqls_http_protocol = TCompactProtocol(sqls_http_client)
     return SecondaryQrCodeLoginService.Client(sqls_http_protocol)
 
@@ -80,21 +76,18 @@ def get_qrcode_query():
 def create_sqlpns_client(session_id: str) -> SecondaryQrCodeLoginPermitNoticeService.Client:
     # SecondaryQrCodeLoginPermitNoticeService -> sqlpns
     sqlpns_http_client = THttpClient(host + sqlpns)
-    sqlpns_http_client.setCustomHeaders(
-        {
-            "X-Line-Application": "ANDROIDLITE\t2.13.2\tAndroid OS\t10.0;SECONDARY",
-            "User-Agent": "LLA/2.13.2 Nexus 5X 10",
-            "x-lal": "ja_jp",
-            "X-Line-Access": session_id,
-        }
-    )
+    sqlpns_http_client.setCustomHeaders({
+        "X-Line-Application": "ANDROIDLITE\t2.13.2\tAndroid OS\t10.0;SECONDARY",
+        "User-Agent": "LLA/2.13.2 Nexus 5X 10",
+        "x-lal": "ja_jp",
+        "X-Line-Access": session_id,
+    })
     sqlpns_http_protocol = TCompactProtocol(sqlpns_http_client)
     return SecondaryQrCodeLoginPermitNoticeService.Client(sqlpns_http_protocol)
 
 
-def check_qrcode(
-    client: SecondaryQrCodeLoginPermitNoticeService.Client, session_id: str
-) -> CheckQrCodeVerifiedResponse:
+def check_qrcode(client: SecondaryQrCodeLoginPermitNoticeService.Client,
+                 session_id: str) -> CheckQrCodeVerifiedResponse:
     return client.checkQrCodeVerified(CheckQrCodeVerifiedRequest(session_id))
 
 
@@ -106,9 +99,8 @@ def create_pincode(client: SecondaryQrCodeLoginService.Client, session_id: str) 
     return client.createPinCode(CreatePinCodeRequest(session_id))
 
 
-def check_pincode(
-    client: SecondaryQrCodeLoginPermitNoticeService.Client, session_id: str
-) -> CheckPinCodeVerifiedResponse:
+def check_pincode(client: SecondaryQrCodeLoginPermitNoticeService.Client,
+                  session_id: str) -> CheckPinCodeVerifiedResponse:
     client.checkPinCodeVerified(CheckPinCodeVerifiedRequest(session_id))
 
 

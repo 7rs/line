@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
-black = "*"
+yapf = "*"
 
 [packages]
 thrift = "*"
