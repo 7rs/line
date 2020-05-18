@@ -1,3 +1,10 @@
 # APK & Functions memo
 *?functions.txt
 *.apk
+
+# Virtualenv Files
+.venv/*
+
+# LINE Files
+gen?*/*
+line_service/*
